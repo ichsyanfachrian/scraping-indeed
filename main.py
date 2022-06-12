@@ -1,3 +1,4 @@
+import json
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -37,6 +38,8 @@ def job_list():
     soup = BeautifulSoup(req.text, 'html.parser')
     contents = soup.find_all('table', 'jobCard_mainContent big6_visualChanges')
 
+    jobs_db = []
+
     for list in contents:
         title = list.find('h2', 'jobTitle').text
         company = list.find('span', 'companyName')
@@ -45,7 +48,25 @@ def job_list():
             company_web = site + company.find('a')['href']
         except:
             company_web = 'Company Web Is Not Available'
-        print(company_web)
+
+        # Sorting data with dictionary
+        data_dict = {
+            'title': title,
+            'company': company_name,
+            'website': company_web
+        }
+        jobs_db.append(data_dict)
+
+    # Create JSON File
+    try:
+        os.mkdir('json_res')
+    except FileExistsError:
+        pass
+
+    with open('json_res/joblist.json', 'w+') as json_data:
+        json.dump(jobs_db, json_data)
+
+    print("JSON File Has Been Created!")
 
 
 if __name__ == '__main__':
